@@ -1,0 +1,35 @@
+Portfolio Reference License / 閲覧・参照・学習のためのライセンス
+
+Copyright (c) 2026 usako-ui
+
+このリポジトリは、講座の模擬案件（架空のアパレル EC）をもとに作った、ポートフォリオ用の作品です。
+
+【できること】
+- 閲覧すること
+- 参照すること
+- 学習のために読み、動かすこと
+
+【できないこと】
+- 商用利用
+- 著作権者の許可なく、複製すること・再配布すること
+- これをもとにした製品・サービスの開発
+
+【ご相談】
+商用での利用や、導入のご相談は、LINE 公式へお願いします。
+https://line.me/R/ti/p/@745jejoa
+
+【対象外】
+講座の配布 CSV（tests/fixtures/sample-sales.csv）は、このリポジトリに含めていません。権利は講座の提供元にあり、このライセンスの対象外です。
+
+【保証について】
+このソフトウェアは「現状のまま」提供されます。明示・黙示を問わず、いかなる保証もありません。このソフトウェアの利用によって生じた損害について、著作権者は責任を負いません。
+
+---
+
+This repository is a portfolio work based on a course practice project (a fictional apparel e-commerce store).
+
+Permitted: viewing, reference, and use for learning purposes.
+Not permitted: commercial use; copying or redistribution without the copyright holder's permission; developing products or services based on this work.
+For commercial use or adoption inquiries, please contact via LINE Official Account: https://line.me/R/ti/p/@745jejoa
+Excluded: the CSV distributed by the course (tests/fixtures/sample-sales.csv) is not included in this repository. Its rights belong to the course provider, and it is not covered by this license.
+This software is provided "as is", without warranty of any kind.

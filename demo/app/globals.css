@@ -1,0 +1,65 @@
+/*
+ * 色・書体・余白・角の丸み・影は、本番の @theme をそのまま共有する（値はここに書かない）。
+ * 共有する部品（src/components）の class を Tailwind が拾えるよう、読む場所を足す。
+ */
+@import "../../src/app/globals.css";
+
+@source "../../src/components";
+
+/*
+ * 紹介ページ（LP）だけで使う token。本番の @theme にない分だけを足す
+ * （色は各所に直接書かず、この名前を使う）
+ */
+@theme {
+  --color-lp-tint: #eef3fb; /* 節の背景の、ごく薄いブルーグレー */
+  --color-lp-tint-deep: #e1e9f6; /* バッジ・帯の背景（lp-tint より少し濃い） */
+  --color-lp-hero: #f4f7fc; /* ファーストビューの背景の端 */
+  --color-lp-leaf: #9fb2d6; /* 装飾の葉の線 */
+  --color-lp-leaf-fill: #dbe4f3; /* 装飾の葉の塗り */
+  --shadow-lp-card: 0 4px 16px -4px rgb(26 46 92 / 0.1), 0 1px 3px 0 rgb(26 46 92 / 0.06);
+  --shadow-lp-laptop: 0 28px 40px -20px rgb(26 46 92 / 0.35);
+
+  /* 濃い節（ファーストビュー・こだわったこと・つくった人）の、いちばん深い色（ブランドのネイビーを暗くした値） */
+  --color-lp-night: #0c1730;
+  /* 浮かぶカード・目立たせるボタンの影（濃い背景の上でも見えるよう、深い影） */
+  --shadow-lp-float: 0 18px 32px -14px rgb(12 23 48 / 0.55), 0 2px 6px 0 rgb(12 23 48 / 0.2);
+
+  /* 浮かぶカードがゆっくり上下する動き（animate-lp-float） */
+  --animate-lp-float: lp-float 6s ease-in-out infinite;
+  @keyframes lp-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+}
+
+/*
+ * スクロールで、下からふわっと出る動き（Reveal 部品が data-shown を付ける）。
+ * JS が動かない環境・scripting 非対応のブラウザでは、最初から表示される（隠したままにしない）
+ */
+.lp-reveal {
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (scripting: enabled) {
+  .lp-reveal:not([data-shown]) {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+}
+
+/* 動きを減らす設定：LP の動きはすべて止め、最初から最終の表示にする */
+@media (prefers-reduced-motion: reduce) {
+  .lp-reveal,
+  .lp-reveal:not([data-shown]) {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}

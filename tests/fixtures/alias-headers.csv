@@ -1,0 +1,4 @@
+Created at,Customer,Lineitem name,Product Type,Lineitem sku,Lineitem quantity,Total,Cost of Goods,Email
+2025/9/3,C001,オーガニックコットンTシャツ,トップス,LUM-TOP-01,2,7600,2800,dummy1@example.com
+2025/10/15 10:00:00 +0900,C002,ダウンジャケット,アウター,LUM-OUT-02,1,19800,7600,dummy2@example.com
+2025-11-01 23:59:59,C003,テーパードパンツ,ボトムス,LUM-BTM-01,1,8900,3400,dummy3@example.com

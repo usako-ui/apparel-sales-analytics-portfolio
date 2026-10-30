@@ -1,0 +1,43 @@
+# 内部資料・案件のルール（外部に出さない）
+CLAUDE.md
+docs-internal/
+.claude/settings.local.json
+
+# 秘密情報（.env.example だけ Git に入れる）
+.env*
+!.env.example
+
+# 依存・ビルド（create-next-app の初期値を含む）
+node_modules/
+/.pnp
+.pnp.*
+.next/
+out/
+build/
+*.tsbuildinfo
+next-env.d.ts
+*.pem
+npm-debug.log*
+
+# テスト・画面確認の出力
+coverage/
+test-results/
+playwright-report/
+
+# スクショなどの出力の保存先（Git に入れない）
+local-output/
+
+# 開発サーバー（next dev）が作り直す、AI 向けの案内ファイル。AI への指示は CLAUDE.md にまとめる
+demo/AGENTS.md
+
+# Supabase CLI・Vercel の作業用
+supabase/.temp/
+supabase/.branches/
+.vercel/
+
+# OS・エディタ
+.DS_Store
+Thumbs.db
+
+# 講座の配布 CSV（権利は講座の提供元にあるため、このリポジトリには含めない）
+tests/fixtures/sample-sales.csv

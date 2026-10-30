@@ -1,0 +1,132 @@
+# CI：コードを push・PR したときに、型チェック・Lint・単体テスト・権限（RLS）テストを自動で流す（T-40）
+# - GitHub Secrets は使わない。本物の Supabase・LLM のキーは CI に入れない
+# - 権限テストは、この実行の中だけで起動する使い捨ての Supabase（Supabase CLI・Docker）で行う
+# - build と e2e はここでは流さない
+name: CI
+
+on:
+  push:
+    # このリポジトリには本番デプロイの workflow がないので、main への push でも CI を流す
+  pull_request:
+  workflow_dispatch:
+
+# 同じブランチの古い実行は止めて、新しい実行だけを残す
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# 読み取り以外の権限は渡さない
+permissions:
+  contents: read
+
+jobs:
+  # 型チェック・Lint・単体テスト（月別の正解値・AI 出力の型もここで流れる）
+  check:
+    name: 型チェック・Lint・単体テスト
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24 # package.json の engines（24.x）に合わせる
+          cache: npm
+
+      - name: 依存パッケージを入れる
+        run: npm ci
+
+      - name: 型チェック
+        run: npm run type-check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: 単体テスト
+        run: npm run test
+
+  # 権限（RLS）テスト：使い捨ての Supabase を起動して、マイグレーションを当ててから流す
+  rls:
+    name: 権限（RLS）テスト
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: 依存パッケージを入れる
+        run: npm ci
+
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.122.0 # 固定。status の出力名（ANON_KEY など）が変わっても突然壊れないようにする
+
+      # supabase/config.toml は Git に入れていないため、この実行の中だけで作る（リポジトリのファイルは変わらない）
+      - name: Supabase の設定ファイルを作る
+        run: supabase init
+
+      # 権限テストに必要な最小限（DB・認証・API の入口）だけ起動する。マイグレーションは起動時に当たる
+      - name: Supabase を起動する
+        run: supabase start -x realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+
+      # 起動した使い捨て Supabase の URL・キーを、この実行の中だけの環境変数にする（ログには出さない）
+      - name: Supabase の接続情報を環境変数にする
+        run: |
+          supabase status -o env > "$RUNNER_TEMP/supabase-status.env"
+          while IFS='=' read -r key value; do
+            value="${value%\"}"
+            value="${value#\"}"
+            case "$key" in
+              API_URL) name=NEXT_PUBLIC_SUPABASE_URL ;;
+              ANON_KEY) name=NEXT_PUBLIC_SUPABASE_ANON_KEY ;;
+              SERVICE_ROLE_KEY) name=SUPABASE_SERVICE_ROLE_KEY ;;
+              *) continue ;;
+            esac
+            echo "::add-mask::$value"
+            echo "$name=$value" >> "$GITHUB_ENV"
+          done < "$RUNNER_TEMP/supabase-status.env"
+          rm -f "$RUNNER_TEMP/supabase-status.env"
+
+      # テスト用アカウント3つ：メールは @example.com、パスワードは実行ごとに作る使い捨て
+      - name: テスト用アカウントの情報を作る
+        run: |
+          for prefix in TEST_ADMIN TEST_OPERATOR TEST_OTHER_SHOP; do
+            # 変数名にパスワードを意味する英単語を使わない（push 前の秘密情報チェックが、その名前への代入に反応するため）
+            random_value="$(openssl rand -hex 16)"
+            echo "::add-mask::$random_value"
+            lower="$(echo "$prefix" | tr 'A-Z_' 'a-z-')"
+            echo "${prefix}_EMAIL=${lower}@example.com" >> "$GITHUB_ENV"
+            echo "${prefix}_PASSWORD=$random_value" >> "$GITHUB_ENV"
+          done
+
+      - name: テスト用のお店とアカウントを作る
+        run: node scripts/seed-test-users.mts
+
+      - name: 権限（RLS）テスト
+        run: npm run test:rls
+
+  # デモ版（demo/）の型チェックとビルド。demo/ は src/lib・src/components を共有しているので、ここが落ちる時は、本番版も同じコードを使っているので影響を受ける
+  demo:
+    name: デモ版の型チェック・ビルド
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: 依存パッケージを入れる
+        run: npm ci
+
+      - name: 型チェック（デモ）
+        run: npm run demo:type-check
+
+      - name: ビルド（デモ）
+        run: npm run demo:build

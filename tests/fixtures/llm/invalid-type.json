@@ -1,0 +1,6 @@
+{
+  "summary": "2025年11月は堅調でした。",
+  "highlights": ["注目1", "注目2"],
+  "concerns": ["懸念1", "懸念2"],
+  "actions": [{ "priority": "urgent", "action": "優先度が許可された値ではない" }]
+}
