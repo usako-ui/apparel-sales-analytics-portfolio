@@ -45,10 +45,10 @@
 
 ## 4. 守る約束
 
-- キー・トークン・パスワードを、ログ・エラーメッセージ・画面・コミットに出さない。環境変数だけで扱う（名前の一覧は `docs/environment-variables.md`）
+- キー・トークン・パスワードを、ログ・エラーメッセージ・画面・コミットに出さない。環境変数だけで扱う（名前の一覧は `docs/developer-guide.md` の「5. 環境変数」）
 - CI のテストで実際の LLM を呼ばない。固定の応答（モック）を使う。実際の API は人が手動で確認するときだけ
 - RLS を弱めない。DB の構造・RLS の変更（`supabase/migrations/`）は、SQL の内容を人に見せて承認を得てから適用する
-- 環境変数を足したら `.env.example` と `docs/environment-variables.md` を同時に更新する
+- 環境変数を足したら `.env.example` と `docs/developer-guide.md` の「5. 環境変数」を同時に更新する
 - 本番の認証・権限に関わる変更は、テスト（`npm run test:rls`）で他のお店のデータが0件であることを確かめる
 
 ## 5. よく使うコマンド
